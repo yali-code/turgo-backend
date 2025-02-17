@@ -29,6 +29,32 @@ app.get('/users', async (req, res) => {
   }
 });
 
+// ✅ Otel Listesi (GET /hotels)
+app.get('/hotels', async (req, res) => {
+  try {
+    const result = await pool.query('SELECT id, name, address, price FROM hotels');
+    res.json(result.rows); // Otellerin listesini döndür
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Server Error');
+  }
+});
+
+// ✅ Otel Ekleme (POST /hotels)
+app.post('/hotels', async (req, res) => {
+  const { name, address, price } = req.body;
+  try {
+    const result = await pool.query(
+      'INSERT INTO hotels (name, address, price) VALUES ($1, $2, $3) RETURNING id, name, address, price',
+      [name, address, price]
+    );
+    res.json({ message: 'Otel başarıyla eklendi!', hotel: result.rows[0] });
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Server Error');
+  }
+});
+
 // ✅ Kullanıcı Kayıt (Signup)
 app.post('/users', async (req, res) => {
   const { name, email, password } = req.body;
