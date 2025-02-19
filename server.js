@@ -1,43 +1,73 @@
 const express = require('express');
 const cors = require('cors');
-const morgan = require('morgan');
-const bcrypt = require('bcryptjs');
 const pool = require('./database'); // PostgreSQL bağlantısı
 require('dotenv').config();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Middleware'ler
+// Middleware
 app.use(cors());
-app.use(morgan('dev'));
 app.use(express.json());
 
-// ✅ Ana Sayfa
-app.get('/', (req, res) => {
-  res.send('Hello, World! API Çalışıyor 🚀');
+// Test Route
+app.get('/test', (req, res) => {
+  res.send('Test route is working!');
 });
 
-// ✅ Kullanıcı Kayıt (Signup)
-app.post('/users', async (req, res) => {
-  const { name, email, password } = req.body;
+// Otelleri Listeleme (GET /hotels)
+app.get('/hotels', async (req, res) => {
   try {
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(password, salt);
-
-    const result = await pool.query(
-      'INSERT INTO users (name, email, password) VALUES ($1, $2, $3) RETURNING id, name, email, created_at',
-      [name, email, hashedPassword]
-    );
-
-    res.json({ message: 'Kullanıcı başarıyla oluşturuldu!', user: result.rows[0] });
+    const result = await pool.query('SELECT * FROM hotels');
+    res.json(result.rows);
   } catch (err) {
     console.error(err.message);
     res.status(500).send('Server Error');
   }
 });
 
-// ✅ Sunucuyu Başlat
+// Otel Ekleme (POST /hotels)
+app.post('/hotels', async (req, res) => {
+  const { name, address, price } = req.body;
+  try {
+    const result = await pool.query(
+      'INSERT INTO hotels (name, address, price) VALUES ($1, $2, $3) RETURNING *',
+      [name, address, price]
+    );
+    res.json({ message: 'Hotel added successfully', hotel: result.rows[0] });
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Server Error');
+  }
+});
+
+// Turları Listeleme (GET /tours)
+app.get('/tours', async (req, res) => {
+  try {
+    const result = await pool.query('SELECT * FROM tours');
+    res.json(result.rows);
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Server Error');
+  }
+});
+
+// Tur Ekleme (POST /tours)
+app.post('/tours', async (req, res) => {
+  const { name, city, price_per_person } = req.body;
+  try {
+    const result = await pool.query(
+      'INSERT INTO tours (name, city, price_per_person) VALUES ($1, $2, $3) RETURNING *',
+      [name, city, price_per_person]
+    );
+    res.json({ message: 'Tour added successfully', tour: result.rows[0] });
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Server Error');
+  }
+});
+
+// Sunucuyu Başlat
 app.listen(PORT, () => {
-  console.log(`✅ Server is running at http://localhost:${PORT}`);
+  console.log(`Server is running on port ${PORT}`);
 });

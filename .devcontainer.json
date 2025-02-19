@@ -1,0 +1,21 @@
+{
+  "name": "My Codespace",
+  "forwardPorts": [3000],
+  "customizations": {
+    "vscode": {
+      "settings": {
+        "terminal.integrated.shell.linux": "/bin/bash"
+      },
+      "extensions": [
+        "dbaeumer.vscode-eslint",
+        "ms-vscode.node-debug2"
+      ]
+    }
+  },
+  "build": {
+    "dockerfile": "Dockerfile"
+  }
+}
+
+
+  
