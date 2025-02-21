@@ -7,23 +7,24 @@ on:
 
 jobs:
   deploy:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-latest  # Ubuntu ortamında çalıştırılır
+
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v2  # Kodun checkout işlemi yapılır
 
       - name: Setup Node.js
         uses: actions/setup-node@v2
         with:
-          node-version: '16'
+          node-version: '16'  # Node.js versiyonu belirtildi
 
       - name: Install dependencies
-        run: npm install
+        run: |
+          npm install  # Bağımlılıkları yükler
 
       - name: Deploy to Heroku
         run: |
           curl https://cli-assets.heroku.com/install.sh | sh  # Heroku CLI yükler
-          echo $HEROKU_API_KEY | heroku auth:token  # Heroku API key ile giriş yapar
-          git remote add heroku https://git.heroku.com/turgo-backend.git  # Heroku git repo bağlantısı
-          git push heroku main  # Heroku'ya deploy işlemi yapar
-
+          echo ${{ secrets.HEROKU_API_KEY }} | heroku auth:token  # Heroku API key ile giriş yapar
+          git remote add heroku https://git.heroku.com/${{ secrets.HEROKU_APP_NAME }}.git  # Heroku'ya bağlanır
+          git push heroku main  # Main branch'ini Heroku'ya deploy eder
